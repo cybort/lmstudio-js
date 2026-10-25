@@ -10,22 +10,23 @@ lms runtime register-custom --path <prism-cuda-dir> --prism-root <lmstudio-prism
 lms runtime register-custom --url <zip-url> --force
 ```
 
-This shells to [`lmstudio-prism`](../lmstudio-prism) (`install.py` / `install.ps1`), which overlays Prism
-binaries onto an LM Studio donor backend under `~/.lmstudio/extensions/backends/`.
+Shells to [lmstudio-prism](../lmstudio-prism) (`install.py` / `install.ps1`).
 
-Desktop UI still uses **Ctrl+Shift+R** (or `lms runtime select`) to activate the installed backend.
+Default prism config uses `install_target=overlay` (Prism binaries inside the donor CUDA12 backend so `lms runtime ls` keeps listing it).
 
-## Build
-
-Same as upstream (needs Node ^25.5):
+## Build (verified on Windows Node v26)
 
 ```powershell
 npm install
-npm run make-cli
-node publish/cli/dist/index.js runtime register-custom --help
+npx turbo run build --filter=@lmstudio/lms-cli...
+cd publish/cli
+$env:LMS_NO_SIGN = "true"
+npm run build   # produces dist/index.js (make-bin needs DigiCert smctl; skip with LMS_NO_SIGN for exe)
+node dist/index.js runtime register-custom --help
+node dist/index.js runtime register-custom --path K:\project\Strata\third_party\prism-llama\cuda --prism-root K:\project\lmstudio-prism
 ```
 
-Without a full monorepo build, run the installer directly:
+Without a full monorepo build:
 
 ```powershell
 python K:\project\lmstudio-prism\install.py --config K:\project\lmstudio-prism\config.json --force
